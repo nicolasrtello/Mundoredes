@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-industrial-navy: #1a365d;
+  --color-industrial-orange: #f97316;
+  --color-industrial-gray: #f1f5f9;
+  --color-industrial-steel: #475569;
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-technical: "Space Grotesk", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-industrial-gray text-industrial-navy font-sans;
+    background-image: radial-gradient(#cbd5e0 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+  }
+}
+
+.technical-grid {
+  background-image: radial-gradient(rgba(10, 35, 66, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm;
+}
