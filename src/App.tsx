@@ -150,7 +150,7 @@ const Hero = () => (
       >
         <div className="relative z-10 rounded-sm overflow-hidden shadow-2xl border-8 border-white">
           <img 
-            src="../images/3.png" 
+            src="/images/3.png" 
             alt="Infraestructura Técnica" 
             className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700"
             referrerPolicy="no-referrer"
