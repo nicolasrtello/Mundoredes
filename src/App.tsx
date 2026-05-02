@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+declare module "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Network, 
@@ -149,7 +150,7 @@ const Hero = () => (
       >
         <div className="relative z-10 rounded-sm overflow-hidden shadow-2xl border-8 border-white">
           <img 
-            src="/images/3.png" 
+            src="../images/3.png" 
             alt="Infraestructura Técnica" 
             className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700"
             referrerPolicy="no-referrer"
@@ -202,7 +203,7 @@ const About = () => (
             <p className="text-2xl font-bold">100%</p>
             <p className="text-xs uppercase tracking-widest">Normativa SEC</p>
           </div>
-          <img src="/images/1.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 2" referrerPolicy="no-referrer" />
+          <img src="./images/1.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 2" referrerPolicy="no-referrer" />
         </div>
       </div>
     </div>
