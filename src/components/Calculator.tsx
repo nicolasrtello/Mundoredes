@@ -14,7 +14,7 @@ const quoteSchema = z.object({
 const Calculator = () => {
   const [result, setResult] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(quoteSchema)
   });
 
@@ -25,8 +25,11 @@ const Calculator = () => {
       formData.append('points', data.points.toString());
       formData.append('urgency', data.urgency);
       formData.append('email', data.email);
-      if (data.photos && data.photos.length > 0) {
-        Array.from(data.photos).forEach((file: any) => {
+      
+      // Get files from the input
+      const fileInput = document.querySelector('input[name="photos"]') as HTMLInputElement;
+      if (fileInput && fileInput.files) {
+        Array.from(fileInput.files).forEach((file) => {
           formData.append('photos', file);
         });
       }
@@ -92,13 +95,13 @@ const Calculator = () => {
               {errors.email && <p className="text-red-500 text-xs">{errors.email.message as string}</p>}
             </div>
 
-            <div className="md:col-span-2 space-y-4">
+            <div className="space-y-4">
               <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Fotos del Proyecto (Opcional)</label>
               <input
                 type="file"
+                name="photos"
                 multiple
                 accept="image/*"
-                {...register("photos")}
                 className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
               />
               <p className="text-xs text-industrial-steel">Puedes subir múltiples fotos para una mejor evaluación técnica.</p>
