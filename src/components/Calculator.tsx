@@ -21,10 +21,19 @@ const Calculator = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append('points', data.points.toString());
+      formData.append('urgency', data.urgency);
+      formData.append('email', data.email);
+      if (data.photos && data.photos.length > 0) {
+        Array.from(data.photos).forEach((file: any) => {
+          formData.append('photos', file);
+        });
+      }
+
       const resp = await fetch("/api/quote", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        body: formData
       });
       const json = await resp.json();
       setResult(json.estimate);
@@ -61,7 +70,19 @@ const Calculator = () => {
             </div>
 
             <div className="space-y-4">
+              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Nivel de Urgencia</label>
+              <select 
+                {...register("urgency")}
+                className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
+              >
+                <option value="Nivel 3">Nivel 3 (Estándar - 7 a 10 días)</option>
+                <option value="Nivel 2">Nivel 2 (Prioritario - 3 a 5 días)</option>
+                <option value="Nivel 1">Nivel 1 (Crítico - &lt; 48 horas)</option>
+              </select>
+            </div>
 
+            <div className="space-y-4">
+              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Correo Corporativo</label>
               <input
                 type="email"
                 {...register("email")}
@@ -69,6 +90,18 @@ const Calculator = () => {
                 placeholder="nombre@empresa.cl"
               />
               {errors.email && <p className="text-red-500 text-xs">{errors.email.message as string}</p>}
+            </div>
+
+            <div className="md:col-span-2 space-y-4">
+              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Fotos del Proyecto (Opcional)</label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                {...register("photos")}
+                className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
+              />
+              <p className="text-xs text-industrial-steel">Puedes subir múltiples fotos para una mejor evaluación técnica.</p>
             </div>
 
             <div className="md:col-span-2">

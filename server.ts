@@ -2,9 +2,31 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
+import multer from "multer";
+import nodemailer from "nodemailer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, 'uploads'));
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
+
+// Configure nodemailer
+const transporter = nodemailer.createTransporter({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER || 'your-email@gmail.com',
+    pass: process.env.EMAIL_PASS || 'your-app-password'
+  }
+});
 
 async function startServer() {
   const app = express();
@@ -46,12 +68,40 @@ async function startServer() {
     }
   });
 
-  app.post("/api/quote", (req, res) => {
+  app.post("/api/quote", upload.array('photos', 10), async (req, res) => {
     const { points, urgency, email } = req.body;
-    // Simple logic for quote calculator based on points only
-    const basePrice = points * 45000;
+    const files = req.files as Express.Multer.File[];
+
+    // Calculate estimate
+    const basePrice = parseInt(points) * 45000;
     const urgencyMultiplier = urgency === "Nivel 1" ? 1.5 : urgency === "Nivel 2" ? 1.2 : 1.0;
     const estimatedTotal = Math.round(basePrice * urgencyMultiplier);
+
+    // Send email with details
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER || 'your-email@gmail.com',
+        to: 'robertelloa@gmail.com',
+        subject: 'Nueva Cotización de Proyecto - Mundoredes',
+        html: `
+          <h2>Nueva Solicitud de Cotización</h2>
+          <p><strong>Cliente:</strong> ${email}</p>
+          <p><strong>Puntos de Red:</strong> ${points}</p>
+          <p><strong>Nivel de Urgencia:</strong> ${urgency}</p>
+          <p><strong>Estimación Calculada:</strong> $${estimatedTotal.toLocaleString('es-CL')} + IVA</p>
+          <p><strong>Fecha:</strong> ${new Date().toLocaleString('es-CL')}</p>
+          ${files && files.length > 0 ? `<p><strong>Fotos adjuntas:</strong> ${files.length} archivo(s)</p>` : '<p>Sin fotos adjuntas</p>'}
+        `,
+        attachments: files ? files.map(file => ({
+          filename: file.originalname,
+          path: file.path
+        })) : []
+      };
+
+      await transporter.sendMail(mailOptions);
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+    }
 
     res.json({ 
       success: true, 
