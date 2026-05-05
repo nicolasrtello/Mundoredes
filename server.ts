@@ -47,9 +47,30 @@ async function startServer() {
   });
 
   app.post("/api/quote", (req, res) => {
-    const { points, area, urgency, email } = req.body;
-    // Simple logic for a "lead magnet" calculator
-    const basePrice = points * 45000 + area * 1500;
+    const { points, area, urgency, email, type } = req.body;
+    // Improved logic for quote calculator
+    let basePricePerPoint = 0;
+    let basePricePerArea = 0;
+
+    switch (type) {
+      case "Eléctrica":
+        basePricePerPoint = 50000;
+        basePricePerArea = 2000;
+        break;
+      case "Datos":
+        basePricePerPoint = 45000;
+        basePricePerArea = 1500;
+        break;
+      case "Seguridad":
+        basePricePerPoint = 40000;
+        basePricePerArea = 1200;
+        break;
+      default:
+        basePricePerPoint = 45000;
+        basePricePerArea = 1500;
+    }
+
+    const basePrice = points * basePricePerPoint + area * basePricePerArea;
     const urgencyMultiplier = urgency === "Nivel 1" ? 1.5 : urgency === "Nivel 2" ? 1.2 : 1.0;
     const estimatedTotal = Math.round(basePrice * urgencyMultiplier);
 

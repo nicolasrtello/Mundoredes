@@ -24,6 +24,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "./lib/utils";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import About from "./components/About";
+import Calculator from "./components/Calculator";
 
 // --- Types & Schemas ---
 
@@ -40,6 +44,7 @@ const emergencySchema = z.object({
 const quoteSchema = z.object({
   points: z.number().min(1, "Mínimo 1 punto"),
   area: z.number().min(1, "Mínimo 1 m²"),
+  type: z.enum(["Eléctrica", "Datos", "Seguridad"]),
   urgency: z.enum(["Nivel 1", "Nivel 2", "Nivel 3"]),
   email: z.string().email("Email inválido")
 });
@@ -50,165 +55,11 @@ const rutSchema = z.object({
 
 // --- Components ---
 
-const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+// Navbar is now in components/Navbar.tsx
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+// Hero is now in components/Hero.tsx
 
-  return (
-    <nav className={cn(
-      "fixed top-0 w-full z-50 transition-all duration-300",
-      isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-6"
-    )}>
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-industrial-navy flex items-center justify-center rounded-sm">
-            <Activity className="text-industrial-orange w-6 h-6" />
-          </div>
-          <span className="text-2xl font-bold tracking-tighter text-industrial-navy">
-            MUNDOREDES<span className="text-industrial-orange">.</span>
-          </span>
-        </div>
-
-        <div className="hidden md:flex items-center gap-8 text-sm font-semibold uppercase tracking-widest text-industrial-navy/80">
-          <a href="#quienes-somos" className="hover:text-industrial-orange transition-colors">Nosotros</a>
-          <a href="#servicios" className="hover:text-industrial-orange transition-colors">Servicios</a>
-          <a href="#estandar" className="hover:text-industrial-orange transition-colors">Estándar</a>
-          <a href="#calculadora" className="hover:text-industrial-orange transition-colors">Cotizador</a>
-          <a href="#clientes" className="bg-industrial-navy text-white px-4 py-2 rounded-sm hover:bg-industrial-steel transition-all">Área Clientes</a>
-        </div>
-
-        <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          {mobileMenuOpen ? <X /> : <Menu />}
-        </button>
-      </div>
-      
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-white border-b border-slate-200 p-6 flex flex-col gap-4 md:hidden"
-          >
-            <a href="#servicios" onClick={() => setMobileMenuOpen(false)}>Servicios</a>
-            <a href="#estandar" onClick={() => setMobileMenuOpen(false)}>Estándar</a>
-            <a href="#calculadora" onClick={() => setMobileMenuOpen(false)}>Cotizador</a>
-            <a href="#clientes" onClick={() => setMobileMenuOpen(false)}>Área Clientes</a>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
-  );
-};
-
-const Hero = () => (
-  <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-    <div className="absolute inset-0 technical-grid opacity-30" />
-    <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="inline-flex items-center gap-2 bg-industrial-orange/10 text-industrial-orange px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-          <Settings className="w-3 h-3 animate-spin-slow" />
-          15 Años de Excelencia Técnica
-        </div>
-        <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] text-industrial-navy mb-6">
-          Asegurando la<br />
-          <span className="text-industrial-steel italic">continuidad operativa</span> <br />
-          de su Empresa.
-        </h1>
-        <p className="text-lg text-industrial-steel max-w-lg mb-8 leading-relaxed">
-          Infraestructura de Redes, Seguridad Electrónica y Electricidad bajo estándares de 
-          <span className="font-bold text-industrial-navy"> estética técnica</span> y Normativa SEC.
-          <br />
-          <span className="text-industrial-orange font-bold text-sm uppercase tracking-widest mt-2 block">Santiago y todo Chile</span>
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button className="bg-industrial-navy text-white px-8 py-4 rounded-sm font-bold flex items-center justify-center gap-2 hover:bg-industrial-orange transition-all group shadow-lg shadow-industrial-navy/20">
-            Solicitar Inspección Técnica Nivel 1
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-          <button className="border-2 border-industrial-navy text-industrial-navy px-8 py-4 rounded-sm font-bold hover:bg-industrial-navy hover:text-white transition-all">
-            Ver Certificaciones
-          </button>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.2 }}
-        className="relative"
-      >
-        <div className="relative z-10 rounded-sm overflow-hidden shadow-2xl border-8 border-white">
-          <img 
-            src="/images/3.png" 
-            alt="Infraestructura Técnica" 
-            className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-industrial-navy to-transparent text-white">
-            <p className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Proyecto Actual</p>
-            <p className="text-xl font-bold">Data Center Corporativo</p>
-          </div>
-        </div>
-        <div className="absolute -top-10 -right-10 w-40 h-40 border-t-4 border-r-4 border-industrial-orange opacity-50" />
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 border-b-4 border-l-4 border-industrial-navy opacity-50" />
-      </motion.div>
-    </div>
-  </section>
-);
-
-const About = () => (
-  <section id="quienes-somos" className="py-24 bg-industrial-gray relative overflow-hidden">
-    <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-      <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-      >
-        <h2 className="text-sm font-bold text-industrial-orange uppercase tracking-[0.3em] mb-4">Quiénes Somos</h2>
-        <p className="text-4xl font-bold text-industrial-navy mb-6 leading-tight">
-          + 15 Años de Trayectoria en el mercado.<br /> 
-        </p>
-        <p className="text-lg text-industrial-steel mb-6 leading-relaxed">
-          Nos hemos consolidado como un referente en soluciones de infraestructura crítica. 
-          Nos diferenciamos por la <span className="text-industrial-navy font-bold">prolijidad técnica</span>, 
-          el cumplimiento estricto de la normativa de la SEC y una capacidad de respuesta inmediata para emergencias.
-        </p>
-        <div className="p-6 bg-white border-l-4 border-industrial-orange shadow-sm">
-          <p className="text-industrial-navy font-bold italic">
-            "Nuestro equipo cuenta con personal altamente calificado y certificado, enfocado en entregar trabajos de alta calidad estética y funcional."
-          </p>
-        </div>
-      </motion.div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-4">
-          <img src="/images/7.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 1" referrerPolicy="no-referrer" />
-          <div className="bg-industrial-navy p-4 text-white">
-            <p className="text-2xl font-bold text-industrial-orange">15+</p>
-            <p className="text-xs uppercase tracking-widest">Años de Experiencia</p>
-          </div>
-        </div>
-        <div className="space-y-4 pt-8">
-          <div className="bg-industrial-orange p-4 text-white">
-            <p className="text-2xl font-bold">100%</p>
-            <p className="text-xs uppercase tracking-widest">Normativa SEC</p>
-          </div>
-          <img src="./images/1.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 2" referrerPolicy="no-referrer" />
-        </div>
-      </div>
-    </div>
-  </section>
-);
+// About is now in components/About.tsx
 
 const Services = () => {
   const pillars = [
@@ -450,6 +301,18 @@ const Calculator = () => {
             </div>
 
             <div className="space-y-4">
+              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Tipo de Infraestructura</label>
+              <select 
+                {...register("type")}
+                className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
+              >
+                <option value="Datos">Redes de Datos</option>
+                <option value="Eléctrica">Electricidad Industrial</option>
+                <option value="Seguridad">Seguridad Electrónica</option>
+              </select>
+            </div>
+
+            <div className="space-y-4">
               <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Nivel de Urgencia</label>
               <select 
                 {...register("urgency")}
@@ -461,7 +324,7 @@ const Calculator = () => {
               </select>
             </div>
 
-            <div className="space-y-4">
+            <div className="md:col-span-2 space-y-4">
               <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Correo Corporativo</label>
               <input 
                 type="email" 
