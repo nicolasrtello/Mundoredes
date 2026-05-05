@@ -135,7 +135,7 @@ const SimplifiedSite = () => {
       </header>
 
       {/* Hero Section Simplificado */}
-      <section className="bg-gradient-to-br from-industrial-navy to-industrial-steel text-white py-20">
+      <section className="bg-gradient-to-br from-industrial-navy to-industrial-steel text-white py-20 relative z-10">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -181,7 +181,7 @@ const SimplifiedSite = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white border-b border-slate-100">
+      <section className="py-16 bg-white border-b border-slate-100 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
@@ -202,7 +202,7 @@ const SimplifiedSite = () => {
       </section>
 
       {/* Servicios Section Simplificado */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-50 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-industrial-navy mb-4">Nuestros Servicios</h2>
@@ -241,7 +241,7 @@ const SimplifiedSite = () => {
       </section>
 
       {/* Por qué elegirnos */}
-      <section className="py-20 bg-industrial-navy text-white">
+      <section className="py-20 bg-industrial-navy text-white relative z-10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">¿Por qué elegir Mundoredes?</h2>
@@ -251,43 +251,67 @@ const SimplifiedSite = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0 * 0.1 }}
+              className="text-center"
+            >
               <div className="w-16 h-16 bg-industrial-orange rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Respuesta Rápida</h3>
               <p className="text-slate-300">Atención inmediata y tiempos de entrega cumplidos</p>
-            </div>
+            </motion.div>
 
-            <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 1 * 0.1 }}
+              className="text-center"
+            >
               <div className="w-16 h-16 bg-industrial-orange rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Equipo Certificado</h3>
               <p className="text-slate-300">Técnicos con certificaciones oficiales y experiencia comprobada</p>
-            </div>
+            </motion.div>
 
-            <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 2 * 0.1 }}
+              className="text-center"
+            >
               <div className="w-16 h-16 bg-industrial-orange rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Garantía Total</h3>
               <p className="text-slate-300">Trabajo garantizado con soporte técnico post-instalación</p>
-            </div>
+            </motion.div>
 
-            <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 3 * 0.1 }}
+              className="text-center"
+            >
               <div className="w-16 h-16 bg-industrial-orange rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Calidad Premium</h3>
               <p className="text-slate-300">Equipos y materiales de primera calidad con estándares internacionales</p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white relative z-10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-industrial-navy mb-4">Lo que dicen nuestros clientes</h2>
@@ -320,7 +344,7 @@ const SimplifiedSite = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-industrial-orange text-white">
+      <section className="py-20 bg-industrial-orange text-white relative z-10">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold mb-6">¿Necesitas una cotización?</h2>
           <p className="text-xl mb-8 opacity-90">
@@ -344,7 +368,7 @@ const SimplifiedSite = () => {
       </section>
 
       {/* Footer Simplificado */}
-      <footer className="bg-industrial-navy text-white py-12">
+      <footer className="bg-industrial-navy text-white py-12 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
