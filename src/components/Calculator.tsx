@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Calculator as CalcIcon, ArrowUpRight, X } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -15,9 +15,14 @@ const Calculator = () => {
   const [result, setResult] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(quoteSchema)
   });
+
+  const handleFileButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -122,14 +127,23 @@ const Calculator = () => {
 
             <div className="space-y-4">
               <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Fotos del Proyecto (Opcional)</label>
-              <input
-                type="file"
-                name="photos"
-                multiple
-                accept="image/*"
-                onChange={handleFileChange}
-                className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
-              />
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={handleFileButtonClick}
+                  className="bg-industrial-navy text-white px-6 py-3 rounded-sm font-bold hover:bg-industrial-steel transition-all flex items-center gap-2"
+                >
+                  Elegir Archivos
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
               <p className="text-xs text-industrial-steel">Puedes subir múltiples fotos (máx. 10, hasta 10MB cada una).</p>
               
               {selectedFiles.length > 0 && (
