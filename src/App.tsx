@@ -31,6 +31,7 @@ import Calculator from "./components/Calculator";
 import Auth from "./components/Auth";
 import Dashboard from "./components/Dashboard";
 import SimplifiedSite from "./components/SimplifiedSite";
+import Inspection from "./components/Inspection";
 
 // --- Types & Schemas ---
 
@@ -80,6 +81,11 @@ const App = () => {
     return <SimplifiedSite />;
   }
 
+  // Show inspection page for /inspeccion
+  if (location.pathname === '/inspeccion') {
+    return <Inspection />;
+  }
+
   // Show auth page for /auth route
   if (location.pathname === '/auth') {
     return <Auth onLogin={handleLogin} onBack={() => navigate('/')} />;
@@ -102,8 +108,43 @@ const MainSite = ({ onAuthClick }: { onAuthClick: () => void }) => {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const images = Array.from(document.querySelectorAll<HTMLImageElement>('img.grayscale-scroll'));
+    if (!images.length) return;
+
+    const updateFilters = () => {
+      const isMobile = window.innerWidth <= 768;
+      const viewportCenter = window.innerHeight / 2;
+
+      images.forEach((img) => {
+        if (!isMobile) {
+          img.style.filter = "";
+          return;
+        }
+
+        const rect = img.getBoundingClientRect();
+        const imgCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(imgCenter - viewportCenter);
+        const maxDistance = viewportCenter + rect.height / 2;
+        const normalized = Math.min(distance / maxDistance, 1);
+        const grayscale = Math.min(1, normalized * 1.1);
+
+        img.style.filter = `grayscale(${grayscale})`;
+      });
+    };
+
+    updateFilters();
+    window.addEventListener("scroll", updateFilters, { passive: true });
+    window.addEventListener("resize", updateFilters);
+
+    return () => {
+      window.removeEventListener("scroll", updateFilters);
+      window.removeEventListener("resize", updateFilters);
+    };
   }, []);
 
   return (

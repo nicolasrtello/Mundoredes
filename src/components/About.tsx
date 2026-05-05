@@ -25,28 +25,28 @@ const About = () => (
       </motion.div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-4">
-          <img src="/images/1.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 1" referrerPolicy="no-referrer" />
+          <img src="/images/1.png" className="rounded-sm grayscale grayscale-scroll transition-all" alt="Técnico 1" referrerPolicy="no-referrer" />
           <div className="bg-industrial-navy p-4 text-white">
             <p className="text-2xl font-bold text-industrial-orange">15+</p>
             <p className="text-xs uppercase tracking-widest">Años de Experiencia</p>
           </div>
         </div>
         <div className="space-y-4">
-          <img src="/images/2.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 2" referrerPolicy="no-referrer" />
+          <img src="/images/2.png" className="rounded-sm grayscale grayscale-scroll transition-all" alt="Técnico 2" referrerPolicy="no-referrer" />
           <div className="bg-industrial-navy p-4 text-white">
             <p className="text-2xl font-bold text-industrial-orange">500+</p>
             <p className="text-xs uppercase tracking-widest">Proyectos Completados</p>
           </div>
         </div>
         <div className="space-y-4">
-          <img src="/images/3.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 3" referrerPolicy="no-referrer" />
+          <img src="/images/3.png" className="rounded-sm grayscale grayscale-scroll transition-all" alt="Técnico 3" referrerPolicy="no-referrer" />
           <div className="bg-industrial-navy p-4 text-white">
             <p className="text-2xl font-bold text-industrial-orange">24/7</p>
             <p className="text-xs uppercase tracking-widest">Soporte Técnico</p>
           </div>
         </div>
         <div className="space-y-4">
-          <img src="/images/4.png" className="rounded-sm grayscale hover:grayscale-0 transition-all" alt="Técnico 4" referrerPolicy="no-referrer" />
+          <img src="/images/4.png" className="rounded-sm grayscale grayscale-scroll transition-all" alt="Técnico 4" referrerPolicy="no-referrer" />
           <div className="bg-industrial-navy p-4 text-white">
             <p className="text-2xl font-bold text-industrial-orange">100%</p>
             <p className="text-xs uppercase tracking-widest">Cumplimiento SEC</p>

@@ -1,8 +1,12 @@
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 import { Settings, ArrowRight } from "lucide-react";
 
-const Hero = () => (
-  <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+const Hero = () => {
+  const navigate = useNavigate();
+
+  return (
+    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
     <div className="absolute inset-0 technical-grid opacity-30" />
     <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
       <motion.div
@@ -26,8 +30,11 @@ const Hero = () => (
           <span className="text-industrial-orange font-bold text-sm uppercase tracking-widest mt-2 block">Santiago y todo Chile</span>
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <button className="bg-industrial-navy text-white px-8 py-4 rounded-sm font-bold flex items-center justify-center gap-2 hover:bg-industrial-orange transition-all group shadow-lg shadow-industrial-navy/20">
-            Solicitar Inspección Técnica Nivel 1
+          <button
+            onClick={() => navigate('/inspeccion')}
+            className="bg-industrial-navy text-white px-8 py-4 rounded-sm font-bold flex items-center justify-center gap-2 hover:bg-industrial-orange transition-all group shadow-lg shadow-industrial-navy/20"
+          >
+            Solicitar Inspección Técnica
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
           <button className="border-2 border-industrial-navy text-industrial-navy px-8 py-4 rounded-sm font-bold hover:bg-industrial-navy hover:text-white transition-all">
@@ -46,7 +53,7 @@ const Hero = () => (
           <img
             src="/images/3.png"
             alt="Infraestructura Técnica"
-            className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700"
+            className="w-full h-auto grayscale grayscale-scroll transition-all duration-700"
             referrerPolicy="no-referrer"
           />
           <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-industrial-navy to-transparent text-white">
@@ -60,5 +67,6 @@ const Hero = () => (
     </div>
   </section>
 );
+};
 
 export default Hero;
