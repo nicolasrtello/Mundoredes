@@ -7,8 +7,6 @@ import * as z from "zod";
 
 const quoteSchema = z.object({
   points: z.number().min(1, "Mínimo 1 punto"),
-  area: z.number().min(1, "Mínimo 1 m²"),
-  type: z.enum(["Eléctrica", "Datos", "Seguridad"]),
   urgency: z.enum(["Nivel 1", "Nivel 2", "Nivel 3"]),
   email: z.string().email("Email inválido")
 });
@@ -63,42 +61,7 @@ const Calculator = () => {
             </div>
 
             <div className="space-y-4">
-              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Metros Cuadrados del Recinto</label>
-              <input
-                type="number"
-                {...register("area", { valueAsNumber: true })}
-                className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
-                placeholder="Ej: 150"
-              />
-              {errors.area && <p className="text-red-500 text-xs">{errors.area.message as string}</p>}
-            </div>
 
-            <div className="space-y-4">
-              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Tipo de Infraestructura</label>
-              <select
-                {...register("type")}
-                className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
-              >
-                <option value="Datos">Redes de Datos</option>
-                <option value="Eléctrica">Electricidad Industrial</option>
-                <option value="Seguridad">Seguridad Electrónica</option>
-              </select>
-            </div>
-
-            <div className="space-y-4">
-              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Nivel de Urgencia</label>
-              <select
-                {...register("urgency")}
-                className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
-              >
-                <option value="Nivel 3">Nivel 3 (Estándar - 7 a 10 días)</option>
-                <option value="Nivel 2">Nivel 2 (Prioritario - 3 a 5 días)</option>
-                <option value="Nivel 1">Nivel 1 (Crítico - &lt; 48 horas)</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 space-y-4">
-              <label className="block text-xs font-bold uppercase tracking-widest text-industrial-steel">Correo Corporativo</label>
               <input
                 type="email"
                 {...register("email")}
