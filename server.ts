@@ -4,6 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import fs from "fs";
 
@@ -145,6 +147,149 @@ async function startServer() {
     } catch (error) {
       console.error('Error processing quote:', error);
       res.status(500).json({ success: false, message: "Error al procesar la cotización" });
+    }
+  });
+
+  // Middleware de autenticación
+  const authenticateToken = (req: any, res: any, next: any) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Token de acceso requerido' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET || 'mundoredes-secret-key', (err: any, user: any) => {
+      if (err) {
+        return res.status(403).json({ success: false, message: 'Token inválido' });
+      }
+      req.user = user;
+      next();
+    });
+  };
+
+  // Endpoint de login
+  app.post("/api/auth/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+      // Mock user database - En producción usarías una base de datos real
+      const users = [
+        {
+          id: 1,
+          username: "admin",
+          password: await bcrypt.hash("admin123", 10),
+          role: "admin",
+          name: "Administrador"
+        },
+        {
+          id: 2,
+          username: "tecnico1",
+          password: await bcrypt.hash("tec123", 10),
+          role: "technician",
+          name: "Juan Pérez"
+        },
+        {
+          id: 3,
+          username: "cliente1",
+          password: await bcrypt.hash("cliente123", 10),
+          role: "client",
+          name: "Empresa XYZ"
+        }
+      ];
+
+      const user = users.find(u => u.username === username);
+      if (!user) {
+        return res.status(401).json({ success: false, message: "Usuario no encontrado" });
+      }
+
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ success: false, message: "Contraseña incorrecta" });
+      }
+
+      const token = jwt.sign(
+        { id: user.id, username: user.username, role: user.role },
+        process.env.JWT_SECRET || 'mundoredes-secret-key',
+        { expiresIn: '8h' }
+      );
+
+      res.json({
+        success: true,
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          role: user.role
+        }
+      });
+    } catch (error) {
+      console.error('Error en login:', error);
+      res.status(500).json({ success: false, message: "Error en el servidor" });
+    }
+  });
+
+  // Endpoint para obtener trabajos (protegido)
+  app.get("/api/jobs", authenticateToken, (req: any, res) => {
+    try {
+      // Mock data - En producción vendría de una base de datos
+      const mockJobs = [
+        {
+          id: "JOB-001",
+          title: "Instalación de Red Estructurada - Edificio Corporativo",
+          status: "in_progress",
+          location: "Av. Providencia 123, Santiago",
+          scheduledDate: "2024-12-20",
+          description: "Instalación de 50 puntos de red Cat6A, configuración de switches Cisco y certificación Fluke.",
+          priority: "high"
+        },
+        {
+          id: "JOB-002",
+          title: "Mantenimiento Preventivo - Sistema Eléctrico",
+          status: "pending",
+          location: "Calle Industrial 456, Quilicura",
+          scheduledDate: "2024-12-22",
+          description: "Revisión completa de tableros eléctricos, medición de cargas y actualización de rotulación SEC.",
+          priority: "medium"
+        },
+        {
+          id: "JOB-003",
+          title: "Implementación CCTV 4K - Bodega Logística",
+          status: "completed",
+          location: "Ruta 5 Sur km 25, Lampa",
+          scheduledDate: "2024-12-15",
+          description: "Instalación de 16 cámaras 4K con analítica IA, configuración de NVR y testing completo.",
+          priority: "high"
+        },
+        {
+          id: "JOB-004",
+          title: "Actualización WiFi Corporativo",
+          status: "pending",
+          location: "Plaza Empresarial, Las Condes",
+          scheduledDate: "2024-12-25",
+          description: "Migración a WiFi 6, configuración de controladores y pruebas de cobertura.",
+          priority: "low"
+        }
+      ];
+
+      // Filtrar trabajos según el rol del usuario
+      let filteredJobs = mockJobs;
+      if (req.user.role === 'technician') {
+        // Técnicos ven todos los trabajos asignados
+        filteredJobs = mockJobs.filter(job => job.status !== 'completed');
+      } else if (req.user.role === 'client') {
+        // Clientes ven solo sus trabajos
+        filteredJobs = mockJobs.filter(job => job.status === 'completed' || job.status === 'in_progress');
+      }
+
+      res.json({
+        success: true,
+        jobs: filteredJobs
+      });
+    } catch (error) {
+      console.error('Error obteniendo trabajos:', error);
+      res.status(500).json({ success: false, message: "Error al obtener trabajos" });
     }
   });
 
