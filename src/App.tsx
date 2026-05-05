@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -122,22 +122,16 @@ const MainSite = ({ onAuthClick }: { onAuthClick: () => void }) => {
 
       images.forEach((img) => {
         if (!isMobile) {
-          img.style.filter = "";
-          return;
-        }
+            img.style.filter = "grayscale(0)";
+            return;
+          }
 
-        const rect = img.getBoundingClientRect();
-        const imgCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(imgCenter - viewportCenter);
-        const maxDistance = viewportCenter + rect.height / 2;
-        const normalized = Math.min(distance / maxDistance, 1);
-        const grayscale = Math.min(1, normalized * 1.1);
-
-        img.style.filter = `grayscale(${grayscale})`;
-      });
-    };
-
-    updateFilters();
+          const rect = img.getBoundingClientRect();
+          const imgCenter = rect.top + rect.height / 2;
+          const distance = Math.abs(imgCenter - viewportCenter);
+          const maxDistance = viewportCenter * 0.9;
+          const ratio = Math.max(0, Math.min(1, 1 - distance / maxDistance));
+          const grayscale = 1 - ratio;
     window.addEventListener("scroll", updateFilters, { passive: true });
     window.addEventListener("resize", updateFilters);
 
@@ -230,7 +224,7 @@ const MainSite = ({ onAuthClick }: { onAuthClick: () => void }) => {
         <Services />
         <Standards />
         <Calculator />
-        <ClientArea onAuthClick={onAuthClick} />
+        <ClientArea onAuthClick={onAuthClick} onLogin={handleLogin} />
         <EmergencyPortal />
       </main>
     </div>
@@ -348,13 +342,51 @@ const Standards = () => (
   </section>
 );
 
-const ClientArea = ({ onAuthClick }: { onAuthClick: () => void }) => {
+const ClientArea = ({ onAuthClick, onLogin }: { onAuthClick: () => void; onLogin: (token: string) => void }) => {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
   const { register, handleSubmit } = useForm({
     resolver: zodResolver(rutSchema)
   });
+
+  const handleClientLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoginError(null);
+    setLoginLoading(true);
+
+    if (!loginEmail || !loginPassword) {
+      setLoginError("Debe ingresar correo y contraseña.");
+      setLoginLoading(false);
+      return;
+    }
+
+    try {
+      const resp = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: loginEmail, password: loginPassword })
+      });
+      const json = await resp.json();
+      if (json.success) {
+        onLogin(json.token);
+      } else {
+        setLoginError(json.message || "Credenciales inválidas");
+      }
+    } catch (err) {
+      setLoginError("Error de conexión con el servidor.");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "/api/auth/google";
+  };
 
   const onSearch = async (vals: any) => {
     setLoading(true);
@@ -381,13 +413,45 @@ const ClientArea = ({ onAuthClick }: { onAuthClick: () => void }) => {
         <h2 className="text-4xl font-bold text-industrial-navy mb-4">Área de Clientes</h2>
         <p className="text-industrial-steel mb-8">Acceda a su servidor de trabajos y consulte el estado de sus certificaciones.</p>
 
-        <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto mb-12">
-          <button
-            onClick={onAuthClick}
-            className="flex-1 bg-industrial-navy text-white px-8 py-4 rounded-sm font-bold hover:bg-industrial-steel transition-all"
-          >
-            Acceder al Servidor de Trabajos
-          </button>
+        <div className="grid gap-4 max-w-5xl mx-auto mb-12">
+          <div className="grid gap-4 md:grid-cols-[1fr_auto] items-end">
+            <form onSubmit={handleClientLogin} className="grid gap-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <input
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-navy outline-none"
+                  placeholder="Correo electrónico"
+                  type="email"
+                />
+                <input
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-navy outline-none"
+                  placeholder="Contraseña"
+                  type="password"
+                />
+              </div>
+              {loginError && (
+                <div className="text-red-600 text-sm">{loginError}</div>
+              )}
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="bg-industrial-navy text-white px-8 py-4 rounded-sm font-bold hover:bg-industrial-steel transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loginLoading ? "Verificando..." : "Ingresar con contraseña"}
+              </button>
+            </form>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="bg-white text-industrial-navy border border-industrial-navy px-8 py-4 rounded-sm font-bold hover:bg-industrial-navy hover:text-white transition-all"
+            >
+              Iniciar con Google
+            </button>
+          </div>
         </div>
 
         <div className="border-t border-slate-200 pt-12">

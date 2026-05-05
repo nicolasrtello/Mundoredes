@@ -53,7 +53,7 @@ const Hero = () => {
           <img
             src="/images/3.png"
             alt="Infraestructura Técnica"
-            className="w-full h-auto grayscale grayscale-scroll transition-all duration-700"
+            className="w-full h-auto grayscale-scroll transition-all duration-700"
             referrerPolicy="no-referrer"
           />
           <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-industrial-navy to-transparent text-white">

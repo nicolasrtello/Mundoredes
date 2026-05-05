@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Usuario requerido"),
+  email: z.string().email("Email inválido"),
   password: z.string().min(1, "Contraseña requerida")
 });
 
@@ -23,6 +23,10 @@ const Auth = ({ onLogin, onBack }: AuthProps) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema)
   });
+
+  const handleGoogleLogin = () => {
+    window.location.href = "/api/auth/google";
+  };
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -65,15 +69,15 @@ const Auth = ({ onLogin, onBack }: AuthProps) => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label className="block text-sm font-bold uppercase tracking-widest text-industrial-steel mb-2">
-              Usuario
+              Correo
             </label>
             <input
-              {...register("username")}
-              type="text"
+              {...register("email")}
+              type="email"
               className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
-              placeholder="Ingrese su usuario"
+              placeholder="correo@empresa.cl"
             />
-            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message as string}</p>}
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
           </div>
 
           <div>
@@ -112,6 +116,15 @@ const Auth = ({ onLogin, onBack }: AuthProps) => {
             {loading ? "Verificando..." : "Iniciar Sesión"}
           </button>
         </form>
+
+        <div className="mt-4 text-center text-sm text-slate-500">O bien, inicia sesión con</div>
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full mt-4 bg-white text-industrial-navy border border-industrial-navy py-4 rounded-sm font-bold hover:bg-industrial-navy hover:text-white transition-all"
+        >
+          Continuar con Google
+        </button>
 
         <button
           onClick={onBack}
