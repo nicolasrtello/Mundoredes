@@ -4,6 +4,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import fs from "fs";
+
+// Load environment variables
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,16 +16,38 @@ const __dirname = path.dirname(__filename);
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, 'uploads'));
+    const uploadPath = path.join(__dirname, 'uploads');
+    // Ensure directory exists
+    fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
+    // Sanitize filename and add timestamp
+    const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    cb(null, Date.now() + '-' + sanitizedName);
   }
 });
-const upload = multer({ storage });
+
+// File filter for images only
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo se permiten archivos de imagen'));
+  }
+};
+
+const upload = multer({ 
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit per file
+    files: 10 // Max 10 files
+  }
+});
 
 // Configure nodemailer
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER || 'your-email@gmail.com',
@@ -72,13 +99,18 @@ async function startServer() {
     const { points, urgency, email } = req.body;
     const files = req.files as Express.Multer.File[];
 
-    // Calculate estimate
-    const basePrice = parseInt(points) * 45000;
-    const urgencyMultiplier = urgency === "Nivel 1" ? 1.5 : urgency === "Nivel 2" ? 1.2 : 1.0;
-    const estimatedTotal = Math.round(basePrice * urgencyMultiplier);
+    // Check for multer errors
+    if (req.fileValidationError) {
+      return res.status(400).json({ success: false, message: req.fileValidationError });
+    }
 
-    // Send email with details
     try {
+      // Calculate estimate
+      const basePrice = parseInt(points) * 45000;
+      const urgencyMultiplier = urgency === "Nivel 1" ? 1.5 : urgency === "Nivel 2" ? 1.2 : 1.0;
+      const estimatedTotal = Math.round(basePrice * urgencyMultiplier);
+
+      // Send email with details
       const mailOptions = {
         from: process.env.EMAIL_USER || 'your-email@gmail.com',
         to: 'robertelloa@gmail.com',
@@ -94,20 +126,23 @@ async function startServer() {
         `,
         attachments: files ? files.map(file => ({
           filename: file.originalname,
-          path: file.path
+          path: file.path,
+          cid: `image-${file.filename}` // Content ID for inline display
         })) : []
       };
 
       await transporter.sendMail(mailOptions);
-    } catch (emailError) {
-      console.error('Error sending email:', emailError);
-    }
+      console.log(`Email sent successfully to robertelloa@gmail.com with ${files?.length || 0} attachments`);
 
-    res.json({ 
-      success: true, 
-      estimate: estimatedTotal,
-      message: "Presupuesto estimado generado. Se ha enviado un detalle técnico a su correo." 
-    });
+      res.json({ 
+        success: true, 
+        estimate: estimatedTotal,
+        message: "Presupuesto estimado generado. Se ha enviado un detalle técnico a su correo." 
+      });
+    } catch (error) {
+      console.error('Error processing quote:', error);
+      res.status(500).json({ success: false, message: "Error al procesar la cotización" });
+    }
   });
 
   // Vite middleware for development

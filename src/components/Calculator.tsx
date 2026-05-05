@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Calculator as CalcIcon, ArrowUpRight } from "lucide-react";
+import { Calculator as CalcIcon, ArrowUpRight, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -14,9 +14,26 @@ const quoteSchema = z.object({
 const Calculator = () => {
   const [result, setResult] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(quoteSchema)
   });
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const validFiles = Array.from(files).filter(file => {
+        const isImage = file.type.startsWith('image/');
+        const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
+        return isImage && isValidSize;
+      });
+      setSelectedFiles(validFiles);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -26,22 +43,30 @@ const Calculator = () => {
       formData.append('urgency', data.urgency);
       formData.append('email', data.email);
       
-      // Get files from the input
-      const fileInput = document.querySelector('input[name="photos"]') as HTMLInputElement;
-      if (fileInput && fileInput.files) {
-        Array.from(fileInput.files).forEach((file) => {
-          formData.append('photos', file);
-        });
-      }
+      // Add selected files
+      selectedFiles.forEach((file) => {
+        formData.append('photos', file);
+      });
 
       const resp = await fetch("/api/quote", {
         method: "POST",
         body: formData
       });
+      
+      if (!resp.ok) {
+        throw new Error('Error en la respuesta del servidor');
+      }
+      
       const json = await resp.json();
-      setResult(json.estimate);
+      if (json.success) {
+        setResult(json.estimate);
+        setSelectedFiles([]); // Clear files after successful submission
+      } else {
+        alert(json.message || 'Error al generar la cotización');
+      }
     } catch (e) {
       console.error(e);
+      alert('Error al enviar la cotización. Por favor intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -102,9 +127,28 @@ const Calculator = () => {
                 name="photos"
                 multiple
                 accept="image/*"
+                onChange={handleFileChange}
                 className="w-full p-4 border border-slate-200 rounded-sm focus:border-industrial-orange outline-none transition-all"
               />
-              <p className="text-xs text-industrial-steel">Puedes subir múltiples fotos para una mejor evaluación técnica.</p>
+              <p className="text-xs text-industrial-steel">Puedes subir múltiples fotos (máx. 10, hasta 10MB cada una).</p>
+              
+              {selectedFiles.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-sm font-semibold">Archivos seleccionados:</p>
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-slate-50 p-2 rounded">
+                      <span className="text-sm">{file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="md:col-span-2">
